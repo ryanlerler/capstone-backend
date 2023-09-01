@@ -6,7 +6,7 @@ class UserController extends BaseController {
   }
 
   getOne = async (req, res) => {
-    const { email } = req.query;
+    const { email } = req.params;
     try {
       const user = await this.model.findOne({
         where: {
@@ -48,13 +48,12 @@ class UserController extends BaseController {
         },
       });
 
-      const { email, name, profilePicUrl, contactNo, onlineStatus } = req.body;
+      const { email, name, profilePicUrl, contactNo } = req.body;
       const updatedUser = await userToEdit.update({
         email,
         name,
         profilePicUrl,
         contactNo,
-        onlineStatus,
       });
       return res.json(updatedUser);
     } catch (err) {

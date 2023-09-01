@@ -25,6 +25,11 @@ module.exports = {
         updated_at: new Date(),
       },
       {
+        type: "Studio",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
         type: "Shophouse",
         created_at: new Date(),
         updated_at: new Date(),

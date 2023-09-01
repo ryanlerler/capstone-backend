@@ -7,7 +7,7 @@ class UserRouter {
   }
 
   routes = () => {
-    router.get("/", this.controller.getOne);
+    router.get("/:email", this.controller.getOne);
     router.post("/", this.controller.signUp);
     router.put("/", this.controller.updateProfile);
     return router;

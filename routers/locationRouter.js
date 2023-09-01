@@ -8,6 +8,7 @@ class LocationRouter {
 
   routes = () => {
     router.get("/", this.controller.getAll);
+    router.get("/:locationId", this.controller.getAllByLocation);
     return router;
   };
 }

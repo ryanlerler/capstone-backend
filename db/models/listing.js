@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       pubIncluded: {
         allowNull: false,
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
       },
       paxCount: {
         allowNull: false,
@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       leaseMonth: {
         allowNull: false,
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
       },
       gender: {
         allowNull: false,
@@ -81,6 +81,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
       },
       lift: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+      },
+      washroomCount: {
+        type: DataTypes.INTEGER,
+      },
+      visitorAllowed: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+      },
+      petAllowed: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
       },
@@ -111,11 +122,9 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
       },
       latitude: {
-        allowNull: false,
         type: DataTypes.STRING,
       },
       longitude: {
-        allowNull: false,
         type: DataTypes.STRING,
       },
       userId: {

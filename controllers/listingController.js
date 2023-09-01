@@ -23,53 +23,41 @@ class ListingController extends BaseController {
     this.userModel = userModel;
   }
 
-  getAllByLocation = async (req, res) => {
-    const { locationId } = req.params;
-    try {
-      const listings = await this.model.findAll({
-        where: {
-          locationId,
-        },
-        order: [["id", "DESC"]],
-      });
-      return res.json(listings);
-    } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
-    }
-  };
-
   getOne = async (req, res) => {
     const { listingId } = req.params;
     try {
       const listing = await this.model.findByPk(listingId, {
-        include: [this.locationModel, this.userModel],
+        include: [
+          this.locationModel,
+          this.userModel,
+          this.propertyTypeModel,
+          this.roomTypeModel,
+        ],
       });
       return res.json(listing);
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
+      return res.status(400).json({ error: true, msg: err.message });
     }
   };
 
   addListing = async (req, res) => {
+    console.log("addlisting");
+    const { email } = req.body;
     try {
-      const { email } = req.body;
-
-      const [user] = await this.userModel.find({
+      const user = await this.userModel.findOne({
         where: {
           email,
         },
       });
 
       const newListing = await this.model.create({
+        ...req.body,
         userId: user.id,
       });
 
-      const selectedLocation = await this.locationModel.findByPk(locationId);
-      await newListing.setLocation(selectedLocation);
-
       return res.json(newListing);
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
+      return res.status(400).json({ error: true, msg: err.message });
     }
   };
 

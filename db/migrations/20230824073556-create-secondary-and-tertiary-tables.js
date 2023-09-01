@@ -52,7 +52,7 @@ module.exports = {
       },
       lease_month: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       gender: {
         allowNull: false,
@@ -76,6 +76,20 @@ module.exports = {
       lift: {
         allowNull: false,
         type: Sequelize.BOOLEAN,
+      },
+      washroom_count: {
+        type: Sequelize.INTEGER,
+      },
+      visitor_allowed: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+      },
+      pet_allowed: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
+      },
+      cea_registration_no: {
+        type: Sequelize.STRING,
       },
       full_address: {
         allowNull: false,
@@ -104,11 +118,9 @@ module.exports = {
         defaultValue: false,
       },
       latitude: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       longitude: {
-        allowNull: false,
         type: Sequelize.STRING,
       },
       user_id: {

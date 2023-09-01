@@ -40,18 +40,18 @@ const {
 
 const userController = new UserController(user);
 const listingController = new ListingController(
+  listing,
   comment,
   file,
   like,
-  listing,
   location,
   propertyType,
   roomType,
   user
 );
 const locationController = new LocationController(location);
-const propertyTypeController = new PropertyTypeController();
-const roomTypeController = new RoomTypeController();
+const propertyTypeController = new PropertyTypeController(propertyType);
+const roomTypeController = new RoomTypeController(roomType);
 
 const userRouter = new UserRouter(userController).routes();
 const listingRouter = new ListingRouter(listingController, checkJwt).routes();
