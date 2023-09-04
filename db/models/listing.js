@@ -122,10 +122,10 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
       },
       latitude: {
-        type: DataTypes.STRING,
+        type: DataTypes.FLOAT,
       },
       longitude: {
-        type: DataTypes.STRING,
+        type: DataTypes.FLOAT,
       },
       userId: {
         allowNull: false,

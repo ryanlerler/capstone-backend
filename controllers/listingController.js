@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const db = require("../db/models/index");
 
 const BaseController = require("./baseController");
@@ -23,6 +24,65 @@ class ListingController extends BaseController {
     this.userModel = userModel;
   }
 
+  getAll = async (req, res) => {
+    try {
+      const data = await this.model.findAll({
+        include: [
+          this.locationModel,
+          this.propertyTypeModel,
+          this.roomTypeModel,
+          this.fileModel,
+        ],
+        order: [["id", "DESC"]],
+      });
+      return res.json(data);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err });
+    }
+  };
+
+  getAllByLocation = async (req, res) => {
+    const { locationId } = req.params;
+    try {
+      const listings = await this.model.findAll({
+        where: {
+          locationId,
+        },
+        include: [
+          this.locationModel,
+          this.propertyTypeModel,
+          this.roomTypeModel,
+          this.fileModel,
+        ],
+        order: [["id", "DESC"]],
+      });
+      return res.json(listings);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  };
+
+  getAllByUser = async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const listings = await this.model.findAll({
+        where: {
+          userId,
+        },
+        include: [
+          this.locationModel,
+          this.propertyTypeModel,
+          this.roomTypeModel,
+          this.fileModel,
+        ],
+        order: [["id", "DESC"]],
+      });
+      return res.json(listings);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  };
+
   getOne = async (req, res) => {
     const { listingId } = req.params;
     try {
@@ -32,6 +92,7 @@ class ListingController extends BaseController {
           this.userModel,
           this.propertyTypeModel,
           this.roomTypeModel,
+          this.fileModel,
         ],
       });
       return res.json(listing);
@@ -42,7 +103,7 @@ class ListingController extends BaseController {
 
   addListing = async (req, res) => {
     console.log("addlisting");
-    const { email } = req.body;
+    const { email, photoUrls } = req.body;
     try {
       const user = await this.userModel.findOne({
         where: {
@@ -54,6 +115,19 @@ class ListingController extends BaseController {
         ...req.body,
         userId: user.id,
       });
+
+      let files = [];
+      for (let i = 0; i < photoUrls.length; i++) {
+        files.push(
+          await this.fileModel.create({
+            type: "image",
+            url: photoUrls[i],
+            listingId: newListing.id,
+          })
+        );
+      }
+
+      await newListing.setFiles(files);
 
       return res.json(newListing);
     } catch (err) {
@@ -80,10 +154,10 @@ class ListingController extends BaseController {
       });
 
       if (!like) {
-        return res.json({ likeStatus: false });
+        return res.json({ liked: false });
       }
 
-      return res.json({ likeStatus: like.likeStatus });
+      return res.json({ liked: like.liked });
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });
     }
@@ -95,7 +169,7 @@ class ListingController extends BaseController {
       const likes = await this.likeModel.findAll({
         where: {
           listingId,
-          likeStatus: true,
+          liked: true,
         },
       });
       return res.json(likes.length);
@@ -123,19 +197,19 @@ class ListingController extends BaseController {
 
       if (!existingLike) {
         const newLike = await this.likeModel.create({
-          likeStatus: true,
+          liked: true,
           listingId,
           userId: user.id,
         });
         return res.json(newLike);
       } else {
         await existingLike.update({
-          likeStatus: !existingLike.likeStatus,
+          liked: !existingLike.liked,
         });
         return res.json(existingLike);
       }
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
+      return res.status(400).json({ error: true, msg: err.message });
     }
   };
 
@@ -159,7 +233,7 @@ class ListingController extends BaseController {
     const { listingId } = req.params;
     const { text, email } = req.body;
     try {
-      const [user] = await this.userModel.find({
+      const user = await this.userModel.findOne({
         where: {
           email,
         },
@@ -183,23 +257,44 @@ class ListingController extends BaseController {
 
   editListing = async (req, res) => {
     const { listingId } = req.params;
+
+    const { email, photoUrls } = req.body;
+
     try {
+      const user = await this.userModel.findOne({
+        where: {
+          email,
+        },
+      });
+
       const listingToEdit = await this.model.findByPk(listingId);
+
       await listingToEdit.update({
         ...req.body,
+        userId: user.id,
       });
-      const selectedLocation = await this.locationModel.findByPk(
-        req.body.locationId
-      );
-      await listingToEdit.setLocation(selectedLocation);
 
-      const editedListing = await this.model.findAll({
-        include: this.locationModel,
-        order: [["id", "ASC"]],
+      // Delete existing photoUrls associated with the listing
+      await this.fileModel.destroy({
+        where: {
+          listingId: listingToEdit.id,
+        },
       });
-      return res.json(editedListing);
+
+      let files = [];
+      for (let i = 0; i < photoUrls.length; i++) {
+        files.push(
+          await this.fileModel.create({
+            type: "image",
+            url: photoUrls[i],
+            listingId: listingToEdit.id,
+          })
+        );
+      }
+
+      return res.json(listingToEdit);
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
+      return res.status(400).json({ error: true, msg: err.message });
     }
   };
 
@@ -244,17 +339,11 @@ class ListingController extends BaseController {
   deleteListing = async (req, res) => {
     const { listingId } = req.params;
     try {
-      await this.likeModel.destroy({
-        where: {
-          listingId,
-        },
-      });
-
-      await this.commentModel.destroy({
-        where: {
-          listingId,
-        },
-      });
+      await Promise.all([
+        this.fileModel.destroy({ where: { listingId } }),
+        this.likeModel.destroy({ where: { listingId } }),
+        this.commentModel.destroy({ where: { listingId } }),
+      ]);
 
       await this.model.destroy({
         where: {
@@ -263,28 +352,57 @@ class ListingController extends BaseController {
       });
       return res.json("deleted");
     } catch (err) {
-      return res.status(400).json({ error: true, msg: err });
+      return res.status(400).json({ error: true, msg: err.message });
     }
   };
 
   getTop9Liked = async (req, res) => {
     try {
-      const listingsWithLikes = await this.model.findAll({
+      const listingsWithFiles = await this.model.findAll({
         include: [
           {
-            model: this.likeModel,
-            where: { likeStatus: true },
+            model: this.fileModel, // Include the files associated with listings
           },
         ],
       });
 
-      const listingsWithLikeCounts = listingsWithLikes.map((listing) => ({
+      // Extract listing IDs to fetch likes for these listings
+      const listingIds = listingsWithFiles.map((listing) => listing.id);
+
+      // Fetch likes for the listings
+      const likesForListings = await this.likeModel.findAll({
+        where: {
+          liked: true,
+          listingId: listingIds,
+        },
+      });
+
+      // Create a map to associate likes with listings
+      const likesByListingId = {};
+      likesForListings.forEach((like) => {
+        const listingId = like.listingId;
+        if (!likesByListingId[listingId]) {
+          likesByListingId[listingId] = [];
+        }
+        likesByListingId[listingId].push(like);
+      });
+
+      // Combine listings with their associated likes
+      const listingsWithLikes = listingsWithFiles.map((listing) => ({
         ...listing.toJSON(),
+        likes: likesByListingId[listing.id] || [], // Attach associated likes
+      }));
+
+      // Calculate like counts for each listing
+      const listingsWithLikeCounts = listingsWithLikes.map((listing) => ({
+        ...listing,
         likeCount: listing.likes.length,
       }));
 
+      // Sort by like count
       listingsWithLikeCounts.sort((a, b) => b.likeCount - a.likeCount);
 
+      // Get the top 9 liked listings
       const top9LikedListings = listingsWithLikeCounts.slice(0, 9);
 
       return res.json(top9LikedListings);

@@ -15,12 +15,15 @@ const ListingRouter = require("./routers/listingRouter");
 const LocationRouter = require("./routers/locationRouter");
 const PropertyTypeRouter = require("./routers/propertyTypeRouter");
 const RoomTypeRouter = require("./routers/roomTypeRouter");
+const LikeRouter = require("./routers/likeRouter");
+
 
 const UserController = require("./controllers/userController");
 const ListingController = require("./controllers/listingController");
 const LocationController = require("./controllers/locationController");
 const PropertyTypeController = require("./controllers/propertyTypeController");
 const RoomTypeController = require("./controllers/roomTypeController");
+const LikeController = require("./controllers/likeController");
 
 const db = require("./db/models/index");
 const {
@@ -52,6 +55,7 @@ const listingController = new ListingController(
 const locationController = new LocationController(location);
 const propertyTypeController = new PropertyTypeController(propertyType);
 const roomTypeController = new RoomTypeController(roomType);
+const likeController = new LikeController(like, listing, location, propertyType, roomType, file);
 
 const userRouter = new UserRouter(userController).routes();
 const listingRouter = new ListingRouter(listingController, checkJwt).routes();
@@ -60,6 +64,7 @@ const propertyTypeRouter = new PropertyTypeRouter(
   propertyTypeController
 ).routes();
 const roomTypeRouter = new RoomTypeRouter(roomTypeController).routes();
+const likeRouter = new LikeRouter(likeController).routes();
 
 // ToDo: Add in Netlify deployed link
 const allowedOrigins = [process.env.FRONTEND];
@@ -79,6 +84,7 @@ app.use("/listings", listingRouter);
 app.use("/locations", locationRouter);
 app.use("/property-type", propertyTypeRouter);
 app.use("/room-type", roomTypeRouter);
+app.use("/likes", likeRouter);
 
 const http = require("http");
 const { Server } = require("socket.io");

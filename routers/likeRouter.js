@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
 
-class LocationRouter {
+class LikeRouter {
   constructor(controller) {
     this.controller = controller;
   }
 
   routes = () => {
-    router.get("/", this.controller.getAll);
+    router.get("/:userId", this.controller.getUserLikedListings);
     return router;
   };
 }
 
-module.exports = LocationRouter;
+module.exports = LikeRouter;

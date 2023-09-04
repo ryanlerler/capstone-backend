@@ -24,7 +24,7 @@ module.exports = {
       },
       pub_included: {
         allowNull: false,
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING,
       },
       pax_count: {
         allowNull: false,
@@ -118,10 +118,10 @@ module.exports = {
         defaultValue: false,
       },
       latitude: {
-        type: Sequelize.STRING,
+        type: Sequelize.FLOAT,
       },
       longitude: {
-        type: Sequelize.STRING,
+        type: Sequelize.FLOAT,
       },
       user_id: {
         allowNull: false,
