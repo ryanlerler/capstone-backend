@@ -1,5 +1,5 @@
-const { where } = require("sequelize");
 const db = require("../db/models/index");
+const { Op } = require("sequelize");
 
 const BaseController = require("./baseController");
 
@@ -77,6 +77,42 @@ class ListingController extends BaseController {
         ],
         order: [["id", "DESC"]],
       });
+      return res.json(listings);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  };
+
+  getAllFiltered = async (req, res) => {
+    const { locationId, propertyTypeId, roomTypeId, minPrice, maxPrice } =
+      req.query;
+
+    const filterOptions = {
+      locationId: locationId ? { [Op.eq]: locationId } : { [Op.not]: null },
+      propertyTypeId: propertyTypeId
+        ? { [Op.eq]: propertyTypeId }
+        : { [Op.not]: null },
+      roomTypeId: roomTypeId ? { [Op.eq]: roomTypeId } : { [Op.not]: null },
+      price: {
+        [Op.and]: [
+          minPrice ? { [Op.gte]: minPrice } : { [Op.not]: null },
+          maxPrice ? { [Op.lte]: maxPrice } : { [Op.not]: null },
+        ],
+      },
+    };
+
+    try {
+      const listings = await this.model.findAll({
+        where: filterOptions,
+        include: [
+          this.locationModel,
+          this.propertyTypeModel,
+          this.roomTypeModel,
+          this.fileModel,
+        ],
+        order: [["id", "DESC"]],
+      });
+
       return res.json(listings);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });

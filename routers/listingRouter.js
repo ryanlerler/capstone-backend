@@ -9,6 +9,7 @@ class ListingRouter {
 
   routes = () => {
     router.get("/", this.controller.getAll);
+    router.get("/filter", this.controller.getAllFiltered);
     router.get("/top9", this.controller.getTop9Liked);
     router.get("/locations/:locationId", this.controller.getAllByLocation);
     router.get("/users/:userId", this.controller.getAllByUser);
