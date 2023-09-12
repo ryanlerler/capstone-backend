@@ -74,6 +74,7 @@ class ListingController extends BaseController {
           this.propertyTypeModel,
           this.roomTypeModel,
           this.fileModel,
+          this.userModel,
         ],
         order: [["id", "DESC"]],
       });
@@ -442,6 +443,19 @@ class ListingController extends BaseController {
       const top9LikedListings = listingsWithLikeCounts.slice(0, 9);
 
       return res.json(top9LikedListings);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  };
+
+  markAsRented = async (req, res) => {
+    const { listingId } = req.params;
+    try {
+      const rentedListing = await this.model.findOne({
+        where: { id: listingId },
+      });
+      await rentedListing.update({ rented: !rentedListing.rented });
+      return res.json(rentedListing.rented);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });
     }

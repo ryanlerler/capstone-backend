@@ -17,6 +17,7 @@ const PropertyTypeRouter = require("./routers/propertyTypeRouter");
 const RoomTypeRouter = require("./routers/roomTypeRouter");
 const LikeRouter = require("./routers/likeRouter");
 const GooglePlacesRouter = require("./routers/googlePlacesRouter");
+const ChatGptRouter = require("./routers/chatGptRouter");
 
 const UserController = require("./controllers/userController");
 const ListingController = require("./controllers/listingController");
@@ -25,6 +26,7 @@ const PropertyTypeController = require("./controllers/propertyTypeController");
 const RoomTypeController = require("./controllers/roomTypeController");
 const LikeController = require("./controllers/likeController");
 const GooglePlacesController = require("./controllers/googlePlacesController");
+const ChatGptController = require("./controllers/chatGptController");
 
 const db = require("./db/models/index");
 const {
@@ -63,6 +65,7 @@ const likeController = new LikeController(
   file
 );
 const googlePlacesController = new GooglePlacesController();
+const chatGptController = new ChatGptController();
 
 const userRouter = new UserRouter(userController).routes();
 const listingRouter = new ListingRouter(listingController, checkJwt).routes();
@@ -75,6 +78,7 @@ const likeRouter = new LikeRouter(likeController).routes();
 const googlePlacesRouter = new GooglePlacesRouter(
   googlePlacesController
 ).routes();
+const chatGptRouter = new ChatGptRouter(chatGptController).routes();
 
 // ToDo: Add in Netlify deployed link
 const allowedOrigins = [process.env.FRONTEND];
@@ -96,32 +100,8 @@ app.use("/property-type", propertyTypeRouter);
 app.use("/room-type", roomTypeRouter);
 app.use("/likes", likeRouter);
 app.use("/places", googlePlacesRouter);
+app.use("/chatgpt", chatGptRouter);
 
-const http = require("http");
-const { Server } = require("socket.io");
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND,
-    methods: ["GET", "POST"],
-  },
-});
-
-io.on("connection", (socket) => {
-  console.log("connected with id: " + socket.id);
-  socket.on("createTopic", (topic) => {
-    socket.join(topic);
-    console.log("topic created");
-  });
-
-  socket.on("send-message", (data) => {
-    io.to(data.topic).emit("receive-message", {
-      sender: socket.id,
-      message: data.inputMessage,
-    });
-  });
-});
-
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Express app listening on port ${PORT}!`);
 });

@@ -21,6 +21,7 @@ class ListingRouter {
     // router.use(this.checkJwt);
 
     router.post("/", this.controller.addListing);
+    router.post('/:listingId/rented', this.controller.markAsRented)
     router.post("/:listingId/comments", this.controller.addComment);
     router.post("/:listingId/likes", this.controller.toggleLike);
     router.put("/:listingId", this.controller.editListing);
