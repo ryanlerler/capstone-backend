@@ -10,7 +10,7 @@ Javascript, PERN (PostgreSQL, Express.js, React.js, Node.js), React-Bootstrap, S
 
 **ERD**
 
-![Alt text](image.png)
+![Alt text](https://github.com/ryanlerler/capstone-backend/blob/main/drawSQL-co-living-export-2024-01-04.png)
 
 **Why Co-Living?**
 
